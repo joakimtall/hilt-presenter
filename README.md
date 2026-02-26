@@ -1,4 +1,4 @@
-# Hilt Model: Composition-Scoped Injection
+# Hilt Presenter: Composition-Scoped Injection
 
 A lightweight abstraction for Jetpack Compose that bridges the gap between `remember` and `ViewModel`. It provides Hilt-injected state holders that survive **Rotation** and **Navigation**, but properly clean up when removed from **Conditional Composition**.
 
@@ -14,13 +14,13 @@ Standard Compose state solutions have limitations in complex scenarios:
 
 **The Issue:** If you use `hiltViewModel()` inside an `if (showChat)` block, the ViewModel **stays alive** even after `showChat` becomes false, leaking memory and state until the user leaves the entire screen.
 
-## The Solution: `hiltModel`
+## The Solution: `hiltPresenter`
 
-`hiltModel` is a hybrid approach. It uses a generic `ViewModel` store to persist objects across configuration changes and navigation, but uses a smart `DisposableEffect` to detect when a specific Composable leaves the UI tree while the screen is still active.
+`hiltPresenter` is a hybrid approach. It uses a generic `ViewModel` store to persist objects across configuration changes and navigation, but uses a smart `DisposableEffect` to detect when a specific Composable leaves the UI tree while the screen is still active.
 
 | Solution | Rotation | Navigation (BackStack) | Conditional (`if`) Cleanup |
 | :--- | :--- | :--- | :--- |
-| **`hiltModel`** | ✅ **Survives** | ✅ **Survives** | ✅ **Cleans up** |
+| **`hiltPresenter`** | ✅ **Survives** | ✅ **Survives** | ✅ **Cleans up** |
 
 ## Sample App
 
@@ -36,53 +36,58 @@ This repository includes a sample app demonstrating the lifecycle behavior with 
 5.  **Toggle OFF:** Click "Hide Counter". The counter disappears.
 6.  **Toggle ON:** The counter reappears, reset to **0**. (Proves Conditional Cleanup).
 
-Check Logcat for `CounterPresenter: Destroyed: ...` messages to verify when the object is garbage collected.
+Check Logcat for `CounterPresenter` messages to verify when the coroutine is cancelled and the object is destroyed.
 
 ## Usage
 
-### 1. Define your Component
-Implement `RetainedComponent` and use standard Hilt `@AssistedInject`.
+### 1. Define your Presenter
+Extend `Presenter` and use standard Hilt `@AssistedInject`.
 
 ```kotlin
 class ChatPresenter @AssistedInject constructor(
     private val repo: ChatRepository,
     @Assisted val chatId: String
-) : RetainedComponent {
+) : Presenter() {
+
+    init {
+        presenterScope.launch {
+            // Coroutine that lives as long as the presenter
+        }
+    }
 
     override fun onCleared() {
-        // Called immediately when 'if' block exits
-        // OR when the screen is finally destroyed
-        println("Chat $chatId destroyed") 
+        super.onCleared() // cancels presenterScope
+        println("Chat $chatId destroyed")
     }
 
     @AssistedFactory
     interface Factory { fun create(id: String): ChatPresenter }
-    
+
     @EntryPoint
-    @InstallIn(ActivityComponent::class)
+    @InstallIn(SingletonComponent::class)
     interface Entry { fun factory(): Factory }
 }
 ```
 
 ### 2. Use in Compose
-Call `hiltModel` inside your conditional logic.
+Call `hiltPresenter` inside your conditional logic.
 
 ```kotlin
 if (isChatOpen) {
     // Automatically scoped to this block.
     // Dies if isChatOpen becomes false.
     // Survives if you rotate or navigate to a new screen.
-    val presenter = hiltModel { entry: ChatPresenter.Entry ->
+    val presenter = hiltPresenter { entry: ChatPresenter.Entry ->
         entry.factory().create("chat_123")
     }
-    
+
     ChatUI(presenter)
 }
 ```
 
 ## Installation
 
-Copy the `core/retained/` package into your project:
-1.  `RetainedComponent.kt` (Interface)
-2.  `RetainedStoreViewModel.kt` (The backing store)
-3.  `HiltModel.kt` (The composable abstraction)
+Copy the `core/presenter/` package into your project:
+1.  `Presenter.kt` (Base class with coroutine scope)
+2.  `PresenterStore.kt` (The ViewModel-backed store)
+3.  `HiltPresenter.kt` (The composable abstraction)
