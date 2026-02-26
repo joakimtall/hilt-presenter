@@ -4,7 +4,7 @@ A lightweight abstraction for Jetpack Compose that bridges the gap between `reme
 
 ## The Problem
 
-**The Issue:** If you use `hiltViewModel()` inside an `if (showChat)` block, the ViewModel **stays alive** even after `showChat` becomes false, leaking memory and state until the user leaves the entire screen.
+**The Issue:** If you use `hiltViewModel()` inside an `if (showChat)` block, the ViewModel **stays alive** even after `showChat` becomes false, leaking memory and state until the user leaves the entire screen or activity.
 
 Standard Compose state solutions have limitations in complex scenarios:
 
