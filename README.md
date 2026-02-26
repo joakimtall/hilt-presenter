@@ -22,6 +22,22 @@ Standard Compose state solutions have limitations in complex scenarios:
 | :--- | :--- | :--- | :--- |
 | **`hiltModel`** | ✅ **Survives** | ✅ **Survives** | ✅ **Cleans up** |
 
+## Sample App
+
+This repository includes a sample app demonstrating the lifecycle behavior with a **Counter** feature.
+
+<img src="screenshot.png" alt="Sample app screenshot" width="300" />
+
+### How to Test
+1.  **Launch App:** You will see a "Show Counter" button.
+2.  **Toggle ON:** The Counter appears (Count: 0). Increment it to **5**.
+3.  **Rotate Device:** The count remains **5**. (Proves Rotation Survival).
+4.  **Navigate:** Click "Go to Details", then press Back. The count remains **5**. (Proves Navigation Survival).
+5.  **Toggle OFF:** Click "Hide Counter". The counter disappears.
+6.  **Toggle ON:** The counter reappears, reset to **0**. (Proves Conditional Cleanup).
+
+Check Logcat for `CounterPresenter: Destroyed: ...` messages to verify when the object is garbage collected.
+
 ## Usage
 
 ### 1. Define your Component
