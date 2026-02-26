@@ -48,7 +48,7 @@ fun HomeScreen(onNavigateToDetails: () -> Unit) {
 
 @Composable
 private fun CounterContent() {
-    val presenter = hiltModel<CounterPresenter, CounterPresenter.Entry> { entry ->
+    val presenter = hiltModel { entry: CounterPresenter.Entry ->
         entry.factory().create("assisted")
     }
     val count by presenter.count.collectAsState()
