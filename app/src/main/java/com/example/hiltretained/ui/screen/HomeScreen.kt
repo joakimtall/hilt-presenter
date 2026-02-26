@@ -1,6 +1,5 @@
 package com.example.hiltretained.ui.screen
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,13 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hiltretained.core.retained.hiltModel
-import com.example.hiltretained.feature.counter.CounterEntryPoint
+import com.example.hiltretained.feature.counter.CounterPresenter
 import dagger.hilt.android.EntryPointAccessors
 
 @Composable
 fun HomeScreen(onNavigateToDetails: () -> Unit) {
-    val activity = LocalContext.current as Activity
-    val entryPoint = EntryPointAccessors.fromActivity(activity, CounterEntryPoint::class.java)
     var showCounter by rememberSaveable { mutableStateOf(true) }
     Column(
         modifier = Modifier
@@ -42,7 +39,7 @@ fun HomeScreen(onNavigateToDetails: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         if (showCounter) {
-            CounterContent(entryPoint)
+            CounterContent()
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = onNavigateToDetails) {
@@ -52,9 +49,11 @@ fun HomeScreen(onNavigateToDetails: () -> Unit) {
 }
 
 @Composable
-private fun CounterContent(entryPoint: CounterEntryPoint) {
+private fun CounterContent() {
+    val entryPoint =
+        EntryPointAccessors.fromApplication(LocalContext.current, CounterPresenter.Entry::class.java)
     val presenter = hiltModel {
-        entryPoint.counterPresenterFactory().create("assisted")
+        entryPoint.factory().create("assisted")
     }
     val count by presenter.count.collectAsState()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

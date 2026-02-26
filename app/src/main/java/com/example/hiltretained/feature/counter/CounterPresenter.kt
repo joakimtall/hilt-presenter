@@ -5,6 +5,9 @@ import com.example.hiltretained.core.retained.RetainedComponent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,5 +34,11 @@ class CounterPresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(counterId: String): CounterPresenter
+    }
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface Entry {
+        fun factory(): Factory
     }
 }
