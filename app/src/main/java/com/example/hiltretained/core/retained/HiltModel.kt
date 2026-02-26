@@ -9,7 +9,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-inline fun <reified T : RetainedComponent> hiltRetained(
+inline fun <reified T : RetainedComponent> hiltModel(
     key: String? = null,
     noinline factory: () -> T,
 ): T {
