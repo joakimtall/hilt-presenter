@@ -1,6 +1,7 @@
 package com.example.hiltretained.core.retained
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
@@ -26,7 +27,7 @@ import dagger.hilt.android.EntryPointAccessors
 @Composable
 inline fun <reified T : RetainedComponent, reified E : Any> hiltModel(
     key: String? = null,
-    noinline factory: (E) -> T,
+    crossinline factory: @DisallowComposableCalls (E) -> T,
 ): T {
     val entryPoint = EntryPointAccessors.fromApplication(LocalContext.current, E::class.java)
     val compositeKey = currentCompositeKeyHashCode
