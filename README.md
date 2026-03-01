@@ -13,6 +13,9 @@ Standard Compose state solutions have limitations in complex scenarios:
 | **`hiltViewModel()`** | ✅ Survives | ✅ Survives | ❌ **LEAKS** (Lives until screen dies) |
 | **`retain`** (New API) | ✅ Survives | ❌ **DIES** (Lost on nav push) | ✅ Cleans up |
 | **`remember`** | ❌ Dies | ❌ Dies | ✅ Cleans up |
+| **Custom `ViewModelStore`** | ⚠️ **Depends*** | ❌ **DIES** | ✅ Cleans up |
+
+*\*If created with `remember`, it dies on rotation. If created with `retain`, it survives rotation but still dies on navigation.*
 
 ## The Solution: `hiltPresenter`
 
